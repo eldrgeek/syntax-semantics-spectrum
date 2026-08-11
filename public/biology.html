@@ -1,0 +1,478 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntax → Semantics · Biology &amp; morphogenesis</title>
+<meta name="description" content="The syntax→semantics continuum run through biology: replication, reading frames, the genetic code's interpreter, bioelectric pattern memory, polycomputing, and the cognitive light cone.">
+<link rel="stylesheet" href="/css/spectrum.css">
+<link rel="stylesheet" href="/vendor/soma-feedback/soma-feedback.css">
+</head>
+<body>
+<div class="wrap">
+
+<nav class="sitenav"><a href="/">⌂ Front door</a><span class="sep">·</span><a href="/language.html">Language &amp; logic</a><span class="sep">·</span><a href="/biology.html" class="here">Biology &amp; morphogenesis</a></nav>
+
+<header class="mast">
+  <div class="eyebrow">Interactive essay · the biology wing</div>
+  <h1>Life runs the whole spectrum at once</h1>
+  <p class="sub">The same axis as the <a href="/language.html">language wing</a> — how much symbol-scrambling does a process survive? — applied to the machinery of life. Biology is the best evidence there is that syntax and semantics are one continuum: a single cell contains blind copying at one end and goal-directed interpretation at the other, with working bridges in between.</p>
+  <div class="meta">
+    <b>Prepared</b> 2026-08-11 · <b>Grounding</b> claims about Michael Levin's results are drawn from his papers, talks, and writing, cited inline<br>
+    <b>Method</b> the scramble test, station by station: what can be substituted without consequence, and what cannot
+  </div>
+  <p class="toc" style="margin-top:26px;">
+    <a href="#rail">The spectrum</a> · <a href="#b0">Copying</a> · <a href="#b1">Reading frame</a> · <a href="#b2">The interpreter</a> · <a href="#b3">Genome ≠ body</a> · <a href="#b4">Pattern memory</a> · <a href="#b5">Observer-relative</a> · <a href="#b6">Goals</a> · <a href="#recap">Takeaway</a>
+  </p>
+</header>
+
+<!-- ==================================================================== -->
+<section id="rail">
+  <h2><span class="num">00</span> The spectrum, biological edition</h2>
+  <p class="lede">Seven stations again — but these aren't analogies to the language stations. They are the same positions on the same axis, occupied by different machinery. Click a dot to read its profile.</p>
+
+  <div class="rail-box">
+    <div class="rail-ends"><span class="l">Syntax — blind copying</span><span class="r">Semantics — goals in the world</span></div>
+    <div class="rail" id="railEl"></div>
+    <div class="rail-read" id="railRead"></div>
+  </div>
+
+  <p>One orienting remark. In language, the stations were built by different traditions (logicians, linguists, programmers). In biology, <strong>every station is running simultaneously in the same organism</strong> — polymerases copying blindly while tissues interpret voltage patterns while the whole animal defends a goal state. If you want proof that the spectrum is one connected road rather than two territories with a wall, a single planarian is that proof.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="b0">
+  <h2><span class="num">01</span> Station 0 — Copying without reading <span class="stn stn-syn">scramble-proof</span></h2>
+  <p class="lede">DNA polymerase is the purest syntactic machine in nature. It copies A→T and G→C by shape complementarity, with proofreading — and it neither knows nor cares whether the sequence it copies is a hemoglobin gene, a virus, or garbage.</p>
+  <p>The scramble test comes built into molecular biology, and it even has names. A <strong>synonymous substitution</strong> swaps a codon for another codon spelling the same amino acid — a renaming the protein survives. A <strong>missense substitution</strong> changes the amino acid. A <strong>frameshift</strong> destroys everything downstream. Biology has been running substitution experiments on itself for four billion years, and the tolerance profile of those substitutions is exactly this page's axis, measured in the wild.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · the mutation scramble test</p>
+    <p style="font-size:13.5px; color:var(--ink-dim); margin-bottom:8px;">A real 7-codon message. Apply each mutation class and watch what the protein — the "meaning" — does.</p>
+    <div class="row">
+      <button class="btn msel active" data-m="none">Original</button>
+      <button class="btn msel" data-m="syn">Synonymous swap</button>
+      <button class="btn msel" data-m="mis">Missense swap</button>
+      <button class="btn msel" data-m="frame">Delete one base</button>
+    </div>
+    <div style="margin-top:12px;">
+      <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);">mRNA (the marks)</div>
+      <div id="mutCodons"></div>
+      <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-top:10px;">Protein (the meaning)</div>
+      <div id="mutProtein"></div>
+      <div style="margin-top:10px;" id="mutVerdict"></div>
+    </div>
+    <p class="hint">Synonymous = a substitution that survives (mostly — see Station 2 for the fine print). Missense = local damage. Frameshift = the grammar of Station 1 violated, meaning annihilated downstream. One molecule, three positions on the axis, depending on which substitution you try.</p>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<section id="b1">
+  <h2><span class="num">02</span> Station 1 — The reading frame <span class="stn stn-syn">gene grammar</span></h2>
+  <p class="lede">Genes have well-formedness rules exactly as sentences do: a promoter, a start codon, an open reading frame in triplets, a stop. The ribosome is a parser. Violate the frame and it doesn't produce a <em>wrong</em> protein — it produces unparsed noise.</p>
+  <p>You saw it in the demo above: deleting one base doesn't shift the meaning by one unit, it destroys the segmentation of everything downstream, because triplet grouping — the grammar — is what turns a base string into codons at all. This is the biological twin of <em>"Furiously sleep ideas green colorless"</em>: not a false statement, a non-statement.</p>
+  <p>And as in language, well-formedness says nothing about sense. A perfectly framed ORF can encode a protein that folds into nothing useful — grammatical, meaningless. Gene synthesis companies will happily print it for you either way; the printer, like the parser, lives left of meaning.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="b2">
+  <h2><span class="num">03</span> Station 2 — The code lives in the interpreter <span class="stn stn-mid">the tRNA lesson</span></h2>
+  <p class="lede">Where is the genetic code? Not in the DNA. The mapping from codons to amino acids is physically held by the aminoacyl-tRNA synthetases — the machinery that decides which tRNA gets charged with which amino acid. Change the interpreter and the same string means something else.</p>
+
+  <div class="quote">"The code's an abstract object. The aminoacyl tRNA synthetase… is in some sense holding the genetic code." — the interpreter, not the sequence, is where the code lives.
+    <span class="attr">Michael Levin, in conversation (talk transcript)</span>
+  </div>
+
+  <div class="demo">
+    <p class="demo-title">Demo · same mRNA, edited interpreter</p>
+    <p style="font-size:13.5px; color:var(--ink-dim); margin-bottom:8px;">The message never changes. You are editing the reading machinery — which is exactly what synthetic biologists do when they reassign a codon.</p>
+    <div class="row">
+      <span style="font-size:14px; color:var(--ink-dim);">The codon <code>UGG</code> is read as:</span>
+      <select id="codonMeans" aria-label="what UGG is translated to">
+        <option value="Trp">Tryptophan (the canonical table)</option>
+        <option value="Ser">Serine (a reassigned interpreter)</option>
+      </select>
+    </div>
+    <div style="margin-top:12px;">
+      <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);">mRNA — untouched</div>
+      <div id="riCodons"></div>
+      <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-top:10px;">Protein — tracks the interpreter</div>
+      <div id="riProtein"></div>
+    </div>
+    <p class="hint">Compare the model-world demo in the <a href="/language.html#s5">language wing</a>: flip what "Red" denotes and truth flips, world untouched. Same structure here — meaning lives in the mapping, and the mapping is machinery you can edit. One honest complication cuts the other way: synonymous codons are not perfectly silent (codon choice carries information — about translation speed, folding, environment — beyond the amino acid), so even the "harmless renaming" of Station 0 leaks a little meaning. On a spectrum that's expected; behind a wall it's a paradox.</p>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<section id="b3">
+  <h2><span class="num">04</span> Station 3 — The genome underdetermines the body <span class="stn stn-mid">hardware, not blueprint</span></h2>
+  <p class="lede">Here is the gap Levin has spent a career measuring: the genome specifies proteins — the hardware — and almost nothing, directly, about anatomy. The shape of the organism is computed downstream, by processes that <em>interpret</em> that hardware in context.</p>
+
+  <div class="quote">"You're not getting the design of the IKEA shelf, you're getting a description of the metal that goes into the screws."
+    <span class="attr">Michael Levin, on what the genome actually encodes (Mindscape podcast with Sean Carroll)</span>
+  </div>
+
+  <p>The evidence is not rhetorical. We cannot look at a genome and read off the body's symmetry or bone count. An oak's genome, prompted differently by a wasp, builds a gall instead of a leaf. And the sharpest case:</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · one genome, three readings</p>
+    <div class="row">
+      <button class="btn xsel active" data-x="0">In the embryo</button>
+      <button class="btn xsel" data-x="1">In a dish, dissociated</button>
+      <button class="btn xsel" data-x="2">The latent space</button>
+    </div>
+    <div class="card" style="margin-top:12px;">
+      <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);">Genome</div>
+      <div style="font: 13px/1.5 var(--mono); color:#cfe0f5;">Xenopus laevis — wild-type, unedited, identical in every panel</div>
+      <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin-top:12px;">What it builds</div>
+      <div id="xenoOut" style="font-size:15px; color:var(--ink-dim);"></div>
+    </div>
+    <p class="hint">The xenobot result (Kriegman, Blackiston, Bongard &amp; Levin, 2020–21): no genomic change, no added machinery — skin cells "liberated from their normal environment" default to building a novel motile organism, complete with behaviors (including kinematic self-replication) that nothing in the frog's history ever selected for. Later transcriptomic work showed the causality running top-down: the new body and behavior drove gene-expression change, genome untouched. If genetic "syntax" fixed biological meaning, none of this could happen.</p>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<section id="b4">
+  <h2><span class="num">05</span> Station 4 — Rewriting the referent <span class="stn stn-sem">bioelectric pattern memory</span></h2>
+  <p class="lede">The language wing's reference station let you flip an interpretation and watch truth change while the marks stayed fixed. Levin's planaria do this with anatomy. The genome is the unchanged string; a bioelectric pattern stored across the tissue is the editable setpoint that says what body to build.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · the two-headed planarian (Levin lab, 2011→)</p>
+    <div class="wormbox">
+      <svg viewBox="0 0 560 200" id="wormSvg" aria-label="a planarian flatworm; its stored bioelectric setpoint and regeneration outcome"></svg>
+    </div>
+    <div class="row" style="margin-top:12px;">
+      <button class="btn" id="wormDrug">Briefly perturb the bioelectric network</button>
+      <button class="btn" id="wormCut">Cut the worm</button>
+      <button class="btn" id="wormReset">Start over</button>
+    </div>
+    <div class="row">
+      <span style="font-size:14px;">Genome: <span class="badge badge-ok">UNCHANGED — in every step of this demo</span></span>
+      <span style="font-size:14px;">Stored setpoint: <span class="badge" id="wormSetpoint"></span></span>
+    </div>
+    <div class="out" id="wormLog" style="font-family:inherit; font-size:14px;"></div>
+    <p class="hint">The real experiment: a transient exposure to a gap-junction blocker during regeneration rewrites the stored pattern; ~70% of worms then regenerate two-headed. Cut those two-headed worms again, in plain water, forever — still two heads. The genome is wild-type throughout. Levin's phrase for the stored pattern: <em>"quite literally the memory of the collective intelligence of the body"</em> — and before any cut, a normal-looking worm can carry the two-head map latently, a <em>counterfactual memory</em> of what it will build <em>if</em> injured. (Bioelectric networks as cognitive glue: Levin, 2023; two-head induction: Levin lab, 2011 onward; destabilized "cryptic" worms flip stochastically between outcomes, like a Necker cube.)</p>
+  </div>
+
+  <p>The "electric face" makes the referring explicit: in the frog embryo, a voltage prepattern marks where eyes and mouth <em>will</em> form, before the anatomy exists and before the regionalization genes come on — and it is instructive, not a shadow: move the electrical pattern and the anatomy follows. A map of a territory that doesn't exist yet, held in millivolts, used to build the territory. That is reference — implemented in ion channels.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="b5">
+  <h2><span class="num">06</span> Station 5 — Meaning is observer-relative, and that's measurable <span class="stn stn-sem">polycomputing</span></h2>
+  <p class="lede">If meaning lives in interpreters, then a system with many interpreters has many meanings at once. Levin calls this polycomputing, and insists it isn't a metaphor: "poly computing is as real as it gets."</p>
+
+  <div class="quote">"When we impose a bioelectrical pattern associated with eye formation and the cells build an eye, there is nothing about that voltage specific to eyes. It's an arbitrary symbolic code. … We rely on the system to interpret our signal in a particular way."
+    <span class="attr">Michael Levin — the single sentence this whole page hangs on</span>
+  </div>
+
+  <p>Sit with that quote, because it is a working biologist reporting the semiotic structure of his own experiments: the voltage pattern is the <em>signifier</em>, arbitrary exactly as Saussure said signs are; the competent tissue is the interpreter; the eye is the meaning. (He is equally careful about the limit: bioelectricity shows interpretation-semantics, but <em>"there's no evidence for grammar yet"</em> — the spectrum's stations are genuinely distinct, even in biology.)</p>
+  <p>And the interpreters multiply: the same organ is read one way by the immune system, another by a parasite, another by the organism it belongs to. "What does this thing actually compute — there is no one correct answer, it's basically in the eye of the beholder" — with a bounded, not anything-goes, relativism: physics constrains what readings are available. To your cat, your laptop is a heat source; the cat is not wrong.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="b6">
+  <h2><span class="num">07</span> Station 6 — Goals: the far pole <span class="stn stn-sem">the cognitive light cone</span></h2>
+  <p class="lede">In the language wing the far pole was the performative — a token welded to consequence. Biology's far pole is the goal state: a condition a system will spend energy, across novel circumstances, to reach and defend. Levin's ruler for it is the cognitive light cone: "the outer boundary, in space and time, of the largest goal a given system can work towards."</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · scaling the light cone</p>
+    <div class="lc-stage"><svg viewBox="0 0 560 240" id="lcSvg" aria-label="nested cognitive light cones from molecule to organism"></svg></div>
+    <input type="range" id="lcRange" min="0" max="3" step="1" value="0" aria-label="scale of the goal-owning system">
+    <div class="ctx-labels"><span>single cell</span><span>whole organism</span></div>
+    <div class="out" id="lcOut" style="font-family:inherit; font-size:14px;"></div>
+    <p class="hint">The mechanism of scaling is the previous stations' machinery: gap junctions and bioelectric networks glue small interpreters into larger ones, extending sensing, memory and predictive reach — so bigger goals can be owned. Cancer is the reverse move: cells that disconnect don't become <em>more</em> selfish, "they just have smaller selves" — their light cone shrinks back to single-cell radius, and the tumor is what pursuing tiny goals looks like from the tissue's frame.</p>
+  </div>
+
+  <p>Why is this the semantic pole? Because a goal is the least substitutable thing in nature. Levin's "Picasso tadpoles" — craniofacial organs experimentally scrambled — do not run a fixed motor program (the scrambled starting point never occurred in evolution); the organs take novel paths and stop when the <em>correct frog face</em> is achieved. Perturb the system and it fights back to the same end state. You can swap the route, the intermediate states, even the tissue doing the work — the one thing that cannot be substituted is the goal. On this page's ruler, that is maximal semantics: total invariance of the <em>end</em>, total indifference to the <em>marks</em>.</p>
+  <p>And meaning itself, on Levin's account, is this pole looking backward down the spectrum: "meaning is a kind of high-order generalization, interpretation, saliency… extending the cognitive light cone of a thought" — biology being, in his phrase, systems "good at generating their own meaning."</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="recap">
+  <h2><span class="num">08</span> The takeaway, biological edition</h2>
+  <p class="lede">The language wing argued the spectrum exists. Biology shows something stronger: all seven stations running at once, in one organism, with the rightward bridges built not by logicians but by evolution.</p>
+  <ol>
+    <li><strong>The scramble test is native to biology.</strong> Synonymous / missense / frameshift is a substitution-tolerance taxonomy; molecular evolution has been measuring this page's axis empirically since long before anyone drew it.</li>
+    <li><strong>Every bridge is an interpreter you can point to.</strong> The tRNA synthetases hold the genetic code; competent tissue holds the meaning of a voltage pattern; the bioelectric network holds the target morphology. In each case meaning moved when the interpreter moved and stayed put when the marks were scrambled — the experiments, not the philosophy, say meaning lives in the mapping.</li>
+    <li><strong>The far pole is a goal, not a referent.</strong> The most meaning-laden things in biology are the states a system will fight its way back to. If you want a naturalized semantics, the cognitive light cone is a better candidate for its unit than the word.</li>
+  </ol>
+  <p style="margin-top:22px;"><strong>Twin essay:</strong> the <a href="/language.html">language &amp; logic wing</a> runs the same axis through grammar, type systems, proof theory, word embeddings, model theory and performatives — and asks where LLMs sit on it.</p>
+</section>
+
+<footer>
+  <p>Written 2026-08-11 by the SOMA dev team (Claude, with Mike Wolf), in response to Michael Levin's framing of the question. Levin-related claims were checked against a corpus of his papers, talks and writing; quotes are his words from talk transcripts and papers, trimmed only for length. The demos are illustrative schematics of real experiments, not simulations of them. Corrections welcome via the feedback tab — especially from the man himself.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------------- rail ---------------- */
+var STATIONS = [
+  { id:'b0', name:'0 · Copying without reading', short:'copying',
+    sees:'Base-pair complementarity. Shape matching, nothing else.',
+    swap:'Any sequence for any sequence — polymerase copies hemoglobin and garbage identically.',
+    breaks:'Nothing. Fidelity without comprehension is the product.',
+    ex:'DNA polymerase, PCR, restriction enzymes' },
+  { id:'b1', name:'1 · The reading frame', short:'frame',
+    sees:'Triplet segmentation, start/stop, promoter structure — gene grammar.',
+    swap:'Codon for codon; gene for gene within a frame.',
+    breaks:'Any single insertion or deletion — everything downstream becomes noise.',
+    ex:'ribosome initiation, ORF structure, splice sites' },
+  { id:'b2', name:'2 · The interpreter holds the code', short:'code',
+    sees:'A codon→amino-acid mapping, physically embodied in tRNA synthetases.',
+    swap:'Synonymous codons (mostly); the symbol set entirely, if the interpreter updates in lockstep.',
+    breaks:'Editing the interpreter: same mRNA, different protein.',
+    ex:'genetic code, codon reassignment, expanded genetic codes' },
+  { id:'b3', name:'3 · Genome ≠ body', short:'genome≠body',
+    sees:'Proteins-as-hardware, read by developmental context.',
+    swap:'Context — and get a different organism from the same genome.',
+    breaks:'The assumption that sequence fixes meaning. It doesn’t; the gall, the chimera and the xenobot are the counterexamples.',
+    ex:'wasp galls, frog–axolotl chimeras, xenobots' },
+  { id:'b4', name:'4 · Rewriting the referent', short:'setpoint',
+    sees:'A stored bioelectric pattern that refers to the anatomy to be built.',
+    swap:'The setpoint — without touching the genome — and the body built changes.',
+    breaks:'Nothing genetic. That is the point: the referent moved, the marks did not.',
+    ex:'two-headed planaria, the electric face, tumor signatures' },
+  { id:'b5', name:'5 · Observer-relative meaning', short:'polycomputing',
+    sees:'Many interpreters reading one substrate at once.',
+    swap:'The observer — and the computation performed changes with it.',
+    breaks:'The idea of one canonical meaning. Bounded by physics, plural in fact.',
+    ex:'polycomputing, host/parasite readings, "arbitrary symbolic code"' },
+  { id:'b6', name:'6 · Goals', short:'goals',
+    sees:'End states defended across novel perturbations — the cognitive light cone.',
+    swap:'The route, the intermediates, even the tissue. Everything but the goal.',
+    breaks:'Substituting the goal itself. The system fights you; that fight is the measurement.',
+    ex:'Picasso tadpoles, regeneration to target morphology, cancer as cone-collapse' }
+];
+var railEl = document.getElementById('railEl');
+var railRead = document.getElementById('railRead');
+STATIONS.forEach(function (s, i) {
+  var d = document.createElement('div');
+  d.className = 'rail-dot';
+  d.style.left = (3 + i * (94 / 6)) + '%';
+  d.innerHTML = '<span class="lbl">' + s.short + '</span>';
+  d.setAttribute('role', 'button'); d.setAttribute('tabindex', '0'); d.setAttribute('aria-label', s.name);
+  d.addEventListener('click', function () { setStation(i); });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setStation(i); } });
+  railEl.appendChild(d);
+});
+var track = document.createElement('div');
+track.className = 'rail-track';
+railEl.insertBefore(track, railEl.firstChild);
+function setStation(i) {
+  railEl.querySelectorAll('.rail-dot').forEach(function (d, j) { d.classList.toggle('active', j === i); });
+  var s = STATIONS[i];
+  railRead.innerHTML =
+    '<h4>' + s.name + '</h4>' +
+    '<div class="rr-row"><div class="rr-k">the rules see</div><div class="rr-v">' + s.sees + '</div>' +
+    '<div class="rr-k">swap freely</div><div class="rr-v">' + s.swap + '</div>' +
+    '<div class="rr-k">what breaks</div><div class="rr-v">' + s.breaks + '</div>' +
+    '<div class="rr-k">machinery</div><div class="rr-v">' + s.ex + '</div></div>' +
+    '<a class="jump" href="#' + s.id + '">Visit this station ↓</a>';
+}
+setStation(0);
+
+/* ---------------- 01 mutation demo ---------------- */
+// message: Met Trp Lys Phe Gly Glu STOP
+var CODE = { AUG:'Met', UGG:'Trp', AAA:'Lys', AAG:'Lys', UUU:'Phe', UUC:'Phe', GGU:'Gly', GGC:'Gly',
+             GAA:'Glu', GAG:'Glu', UAA:'STOP', UAG:'STOP', UGA:'STOP', AGU:'Ser', GUU:'Val', UUG:'Leu',
+             GAU:'Asp', UGU:'Cys', GGA:'Gly', AAU:'Asn', UUA:'Leu', GUA:'Val', GUG:'Val', AGA:'Arg', GCU:'Ala' };
+var BASE_MSG = 'AUGUGGAAAUUUGGUGAAUAA';
+var MUTS = {
+  none:  { seq: BASE_MSG, mark: -1, note: '<span class="badge badge-ok">MEANING INTACT</span> — the reference reading.' },
+  syn:   { seq: 'AUGUGGAAGUUUGGUGAAUAA', mark: 2, note: '<span class="badge badge-ok">MEANING INTACT</span> — AAA→AAG still spells Lys. A renaming the protein survives: the syntactic pole’s freedom, measured in the lab as "synonymous".' },
+  mis:   { seq: 'AUGUGUAAAUUUGGUGAAUAA', mark: 1, note: '<span class="badge badge-bad">MEANING DAMAGED LOCALLY</span> — UGG→UGU: Trp becomes Cys at one position; the rest is untouched. Substitution partially survives.' },
+  frame: { seq: 'AUGGGAAAUUUGGUGAAUAAX', mark: 1, note: '<span class="badge badge-bad">MEANING DESTROYED DOWNSTREAM</span> — one base deleted; every later codon re-segments. Grammar violated, not just content.' }
+};
+function translate(seq) {
+  var out = [];
+  for (var i = 0; i + 3 <= seq.length; i += 3) {
+    var c = seq.slice(i, i + 3);
+    if (c.indexOf('X') >= 0) break;
+    var aa = CODE[c] || '???';
+    out.push(aa);
+    if (aa === 'STOP') break;
+  }
+  return out;
+}
+var refProtein = translate(BASE_MSG);
+function renderMut(kind) {
+  var m = MUTS[kind];
+  var codons = [];
+  for (var i = 0; i + 3 <= m.seq.length; i += 3) codons.push(m.seq.slice(i, i + 3));
+  document.getElementById('mutCodons').innerHTML = codons.map(function (c, i) {
+    var cls = 'codon';
+    if (kind === 'syn' && i === m.mark) cls += ' syn';
+    if (kind === 'mis' && i === m.mark) cls += ' mis';
+    if (kind === 'frame' && i >= m.mark) cls += ' frame';
+    return '<span class="' + cls + '">' + c.replace('X','&nbsp;') + '</span>';
+  }).join('');
+  var prot = translate(m.seq);
+  document.getElementById('mutProtein').innerHTML = prot.map(function (aa, i) {
+    var cls = 'aa';
+    if (aa === 'STOP') cls += ' stop';
+    else if (aa !== refProtein[i]) cls += ' changed';
+    return '<span class="' + cls + '">' + aa + '</span>';
+  }).join('') + (prot.length < refProtein.length && kind === 'frame' ? ' <span class="aa changed">…noise</span>' : '');
+  document.getElementById('mutVerdict').innerHTML = m.note;
+}
+document.querySelectorAll('.msel').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.msel').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    renderMut(b.getAttribute('data-m'));
+  });
+});
+renderMut('none');
+
+/* ---------------- 03 reinterpreter demo ---------------- */
+var RI_SEQ = 'AUGUGGAAAUGGGAAUAA'; // Met Trp Lys Trp Glu STOP
+function renderRI() {
+  var means = document.getElementById('codonMeans').value;
+  var codons = [];
+  for (var i = 0; i + 3 <= RI_SEQ.length; i += 3) codons.push(RI_SEQ.slice(i, i + 3));
+  document.getElementById('riCodons').innerHTML = codons.map(function (c) {
+    return '<span class="codon' + (c === 'UGG' ? ' syn' : '') + '">' + c + '</span>';
+  }).join('');
+  document.getElementById('riProtein').innerHTML = codons.map(function (c) {
+    var aa = c === 'UGG' ? means : CODE[c];
+    if (aa === 'STOP') return '<span class="aa stop">STOP</span>';
+    var changed = (c === 'UGG' && means !== 'Trp');
+    return '<span class="aa' + (changed ? ' changed' : '') + '">' + aa + '</span>';
+  }).join('');
+}
+document.getElementById('codonMeans').addEventListener('change', renderRI);
+renderRI();
+
+/* ---------------- 04 xenobot demo ---------------- */
+var XENO = [
+  'Embryonic skin cells, in vivo: a flat, passive, mucociliary barrier. Their neighbors’ instructive signals — not the genome alone — "tell them to be skin."',
+  'The same cells, dissociated into a dish: they self-assemble into xenobots — motile, cilia-driven proto-organisms that navigate, cooperate, and (given loose cells) assemble copies of themselves. No gene edited; behavior with no selection history.',
+  'Levin’s reading: the xenobot is "a periscope into the latent space around that genome" — the same string held many possible organisms all along, and context chooses which one is meant. Meaning was never in the sequence alone.'
+];
+document.querySelectorAll('.xsel').forEach(function (b, i) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.xsel').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    document.getElementById('xenoOut').textContent = XENO[i];
+  });
+});
+document.getElementById('xenoOut').textContent = XENO[0];
+
+/* ---------------- 05 planarian demo ---------------- */
+var worm = { setpoint: 1, cut: false, regrown: false, everDrugged: false };
+var wormLogEl = document.getElementById('wormLog');
+function wormBody(cx, heads, half) {
+  // returns svg for a worm centered at cx; heads = 1|2; half: 'full'|'left'|'right'
+  var s = '';
+  var bodyW = half === 'full' ? 150 : 95;
+  s += '<ellipse cx="' + cx + '" cy="100" rx="' + bodyW + '" ry="34" fill="#2a3546" stroke="#3d4d63" stroke-width="2"/>';
+  // head(s): head = rounded triangle with two eyespots
+  function head(hx, dir) {
+    var h = '<circle cx="' + hx + '" cy="100" r="26" fill="#33415a" stroke="#4a5d7d" stroke-width="2"/>';
+    h += '<circle cx="' + (hx + dir * 8) + '" cy="90" r="3.5" fill="#dde5ef"/>';
+    h += '<circle cx="' + (hx + dir * 8) + '" cy="110" r="3.5" fill="#dde5ef"/>';
+    return h;
+  }
+  if (half === 'full') {
+    s += head(cx - bodyW, -1);
+    if (heads === 2) s += head(cx + bodyW, 1);
+    else s += '<path d="M ' + (cx + bodyW - 6) + ' 82 Q ' + (cx + bodyW + 26) + ' 100 ' + (cx + bodyW - 6) + ' 118" fill="#2a3546" stroke="#3d4d63" stroke-width="2"/>';
+  } else if (half === 'left') {
+    s += head(cx - bodyW, -1);
+  } else {
+    if (heads === 2) s += head(cx + bodyW, 1);
+  }
+  return s;
+}
+function renderWorm() {
+  var svg = document.getElementById('wormSvg');
+  var content = '';
+  if (!worm.cut) {
+    content = wormBody(280, worm.regrown ? worm.setpoint : 1, 'full');
+    if (worm.setpoint === 2 && !worm.regrown) {
+      content += '<text x="280" y="30" fill="#e6c574" font-size="12" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">looks normal — carries a two-head map, latently</text>';
+    }
+  } else {
+    content = wormBody(150, worm.setpoint, 'left') + wormBody(410, worm.setpoint, 'right');
+    content += '<line x1="280" y1="55" x2="280" y2="145" stroke="#e0685f" stroke-width="3" stroke-dasharray="6 5"/>';
+  }
+  svg.innerHTML = content;
+  var sp = document.getElementById('wormSetpoint');
+  sp.className = 'badge ' + (worm.setpoint === 2 ? 'badge-bad' : 'badge-ok');
+  sp.textContent = worm.setpoint === 2 ? 'TWO HEADS' : 'ONE HEAD';
+}
+function wormSay(t) { wormLogEl.textContent = t; }
+document.getElementById('wormDrug').addEventListener('click', function () {
+  worm.setpoint = worm.setpoint === 1 ? 2 : 1;
+  worm.everDrugged = true;
+  worm.regrown = false;
+  wormSay(worm.setpoint === 2
+    ? 'A transient gap-junction perturbation rewrote the stored pattern. The worm still LOOKS one-headed — the two-head memory is counterfactual: "not true right now… that is what it will do if it gets injured."'
+    : 'Perturbed back. The stored pattern again says one head — the memory is rewritable in both directions; the genome never entered into it.');
+  renderWorm();
+});
+document.getElementById('wormCut').addEventListener('click', function () {
+  if (worm.cut) {
+    // regrow both halves per setpoint, show one
+    worm.cut = false; worm.regrown = true;
+    wormSay(worm.setpoint === 2
+      ? 'Each fragment regenerated TWO-HEADED — in plain water, no drug present. Cut them again and again: still two heads. A permanent anatomical line with a wild-type genome. The referent changed; the marks did not.'
+      : 'Each fragment regenerated the standard one-headed body — the stored setpoint, faithfully rebuilt.');
+  } else {
+    worm.cut = true;
+    wormSay('Cut. Each fragment now regenerates toward whatever the STORED PATTERN says — not toward what the genome "says", which is identical in every worm on this page. Press Cut again to complete regeneration.');
+  }
+  renderWorm();
+});
+document.getElementById('wormReset').addEventListener('click', function () {
+  worm = { setpoint: 1, cut: false, regrown: false, everDrugged: false };
+  wormSay('A standard planarian. Stored bioelectric setpoint: one head. Try perturbing the network, then cutting.');
+  renderWorm();
+});
+wormSay('A standard planarian. Stored bioelectric setpoint: one head. Try perturbing the network, then cutting.');
+renderWorm();
+
+/* ---------------- 07 light cone demo ---------------- */
+var LC = [
+  { label: 'single cell', r: 34,
+    txt: 'Goal-space radius: micrometers and minutes — pH, hunger, membrane integrity. Real goals, tiny cone.' },
+  { label: 'tissue (gap-junction coupled)', r: 80,
+    txt: 'Cells electrically networked share sensing and memory; the collective can own goals no member has — "which organ goes here."' },
+  { label: 'organ / morphogenetic field', r: 140,
+    txt: 'Organ-level construction projects: build a limb, and if perturbed, take a novel route to the same limb. The Picasso-tadpole regime.' },
+  { label: 'whole organism', r: 210,
+    txt: 'Anatomical homeostasis plus behavior: defend a body plan and a territory. Largest cone biology routinely builds — and the scale at which we usually first grant "meaning".' }
+];
+function renderLC() {
+  var i = +document.getElementById('lcRange').value;
+  var svg = document.getElementById('lcSvg');
+  var s = '';
+  for (var j = LC.length - 1; j >= 0; j--) {
+    var active = j <= i;
+    s += '<circle cx="280" cy="120" r="' + LC[j].r + '" fill="' + (active ? 'rgba(110,168,254,' + (0.10 + 0.06 * (i - j)) + ')' : 'none') + '" stroke="' + (active ? '#6ea8fe' : '#262f3b') + '" stroke-width="' + (j === i ? 2.5 : 1.2) + '"' + (j === i ? '' : ' stroke-dasharray="4 5"') + '/>';
+  }
+  s += '<circle cx="280" cy="120" r="5" fill="#dde5ef"/>';
+  s += '<text x="280" y="18" fill="#93a1b3" font-size="12" text-anchor="middle" font-family="ui-monospace,Menlo,monospace">' + LC[i].label + '</text>';
+  svg.innerHTML = s;
+  document.getElementById('lcOut').textContent = LC[i].txt;
+}
+document.getElementById('lcRange').addEventListener('input', renderLC);
+renderLC();
+
+})();
+</script>
+
+<script src="/vendor/soma-feedback/soma-feedback.js"
+        data-site="syntax-semantics-spectrum"
+        data-endpoint="/.netlify/functions/feedback"
+        data-label="Feedback"
+        data-area="biology"
+        data-no-google
+        defer></script>
+</body>
+</html>
