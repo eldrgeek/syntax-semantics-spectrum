@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntax → Semantics — a spectrum, not a wall</title>
+<meta name="description" content="An interactive essay dissolving the syntax/semantics dichotomy into a measurable continuum, with seven stations and working demos at each one.">
+<link rel="stylesheet" href="/vendor/soma-feedback/soma-feedback.css">
+<style>
+:root {
+  --bg: #0e1116;
+  --panel: #151a21;
+  --panel-2: #1b222b;
+  --line: #262f3b;
+  --ink: #dde5ef;
+  --ink-dim: #93a1b3;
+  --ink-faint: #6b7889;
+  --accent: #6ea8fe;
+  --ok: #5ec27e;
+  --warn: #e0b341;
+  --bad: #e0685f;
+  --syn: #6ea8fe;   /* syntax pole */
+  --sem: #e08a5f;   /* semantics pole */
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16.5px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding: 0 22px 140px; }
+header.mast { padding: 66px 0 30px; border-bottom: 1px solid var(--line); }
+.eyebrow { font: 600 11.5px/1 var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 20px; }
+h1 { font-size: clamp(29px, 5vw, 42px); line-height: 1.14; margin: 0 0 16px; letter-spacing: -.02em; }
+.sub { font-size: 18.5px; color: var(--ink-dim); margin: 0 0 26px; max-width: 64ch; }
+.meta { font: 12.5px/1.7 var(--mono); color: var(--ink-faint); }
+.meta b { color: var(--ink-dim); font-weight: 600; }
+section { padding: 46px 0 8px; border-bottom: 1px solid var(--line); }
+section:last-of-type { border-bottom: 0; }
+h2 { font-size: 25px; letter-spacing: -.015em; margin: 0 0 6px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+h2 .num { font: 600 12px/1 var(--mono); color: var(--accent); letter-spacing: .1em; }
+h3 { font-size: 17.5px; margin: 32px 0 8px; letter-spacing: -.01em; }
+p { margin: 0 0 15px; }
+.lede { color: var(--ink-dim); font-size: 17px; margin-bottom: 26px; max-width: 66ch; }
+ul, ol { margin: 0 0 15px; padding-left: 22px; }
+li { margin-bottom: 7px; }
+a { color: var(--accent); }
+strong { color: #f0f5fb; }
+em { color: #e8eef7; }
+code { font: 13px/1.5 var(--mono); background: #10151c; border: 1px solid var(--line); padding: 1px 5px; border-radius: 4px; color: #cfe0f5; }
+.toc { font-size: 14.5px; color: var(--ink-dim); }
+
+/* station chips */
+.stn {
+  display: inline-block; font: 600 10px/1.5 var(--mono); letter-spacing: .07em; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 4px; vertical-align: 2px; white-space: nowrap; border: 1px solid;
+}
+.stn-syn { color: #9dc2f2; border-color: #2b4569; background: #121b28; }
+.stn-mid { color: #e6c574; border-color: #5d4a1e; background: #221c0e; }
+.stn-sem { color: #f0a98a; border-color: #6b4028; background: #241812; }
+
+/* cards & demo shells */
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px 20px; margin: 0 0 18px; }
+.demo { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px 20px; margin: 22px 0; }
+.demo .demo-title { font: 600 11px/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin: 0 0 14px; }
+.demo .hint { font-size: 13px; color: var(--ink-faint); margin-top: 12px; margin-bottom: 0; }
+button.btn {
+  font: 600 13.5px/1 inherit; color: var(--ink); background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 7px; padding: 8px 13px; cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+button.btn:hover { border-color: var(--accent); }
+button.btn.active { border-color: var(--accent); background: #14202f; color: #cfe0f5; }
+input[type=text] {
+  font: 15px/1.4 var(--mono); color: var(--ink); background: #0b0f14;
+  border: 1px solid var(--line); border-radius: 7px; padding: 9px 12px; width: 100%;
+}
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+.out {
+  font: 14px/1.6 var(--mono); background: #0b0f14; border: 1px solid var(--line);
+  border-radius: 8px; padding: 12px 14px; margin-top: 12px; color: #c6d4e4; min-height: 24px;
+  overflow-wrap: anywhere;
+}
+.badge { display: inline-block; font: 700 11px/1.4 var(--mono); letter-spacing: .06em; padding: 3px 9px; border-radius: 5px; border: 1px solid; }
+.badge-ok  { color: #8ee0a6; border-color: #2c5c3c; background: #142418; }
+.badge-bad { color: #f0938a; border-color: #6b2f28; background: #241312; }
+.badge-na  { color: #93a1b3; border-color: #38414d; background: #161b22; }
+
+/* the spectrum rail */
+.rail-box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px 22px 8px; margin: 26px 0; }
+.rail { position: relative; height: 74px; margin: 6px 4px 4px; }
+.rail-track {
+  position: absolute; left: 0; right: 0; top: 26px; height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, var(--syn), #b09a6e 55%, var(--sem));
+  opacity: .85;
+}
+.rail-dot {
+  position: absolute; top: 18px; width: 24px; height: 24px; margin-left: -12px;
+  border-radius: 50%; background: var(--bg); border: 2px solid var(--ink-faint);
+  cursor: pointer; transition: border-color .15s, transform .15s;
+}
+.rail-dot:hover { transform: scale(1.15); }
+.rail-dot.active { border-color: #fff; box-shadow: 0 0 0 4px rgba(255,255,255,.12); }
+.rail-dot .lbl {
+  position: absolute; top: 30px; left: 50%; transform: translateX(-50%);
+  font: 600 10px/1.2 var(--mono); letter-spacing: .04em; color: var(--ink-faint);
+  white-space: nowrap; pointer-events: none;
+}
+.rail-dot.active .lbl { color: var(--ink); }
+.rail-ends { display: flex; justify-content: space-between; font: 700 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; margin-bottom: 8px; }
+.rail-ends .l { color: var(--syn); } .rail-ends .r { color: var(--sem); }
+.rail-read { border-top: 1px solid var(--line); margin-top: 14px; padding: 14px 2px 12px; min-height: 120px; }
+.rail-read h4 { margin: 0 0 6px; font-size: 15.5px; color: #f0f5fb; }
+.rail-read .rr-row { display: grid; grid-template-columns: 150px 1fr; gap: 4px 14px; font-size: 14px; margin-top: 8px; }
+.rail-read .rr-k { color: var(--ink-faint); font: 600 11px/1.9 var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.rail-read .rr-v { color: var(--ink-dim); }
+.rail-read .jump { font-size: 13px; margin-top: 10px; display: inline-block; }
+@media (max-width: 640px) {
+  .rail-dot .lbl { display: none; }
+  .rail-read .rr-row { grid-template-columns: 1fr; }
+}
+
+/* meter */
+.meter { height: 8px; border-radius: 4px; background: #0b0f14; border: 1px solid var(--line); overflow: hidden; margin-top: 4px; }
+.meter > i { display: block; height: 100%; background: linear-gradient(90deg, var(--syn), var(--sem)); transition: width .3s; }
+
+/* grammar demo */
+.tokchips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
+.tok { border: 1px solid var(--line); background: #0b0f14; border-radius: 7px; padding: 5px 9px 3px; text-align: center; }
+.tok b { display: block; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.tok span { font: 600 9.5px/1.6 var(--mono); letter-spacing: .08em; color: var(--ink-faint); text-transform: uppercase; }
+
+/* word map */
+.wmap { position: relative; height: 340px; background: #0b0f14; border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; overflow: hidden; }
+.wm-word {
+  position: absolute; transform: translate(-50%, -50%);
+  font: 600 13px/1 var(--mono); color: #cfe0f5; background: #14202f; border: 1px solid #2b4569;
+  padding: 5px 9px; border-radius: 6px; transition: left 1.1s cubic-bezier(.4,0,.2,1), top 1.1s cubic-bezier(.4,0,.2,1), border-color .5s;
+  white-space: nowrap;
+}
+.wm-word.g2 { background: #241c12; border-color: #5d4a1e; color: #ecd9a8; }
+.wm-word.g3 { background: #241318; border-color: #6b2840; color: #f2b8cd; }
+.wm-word.g4 { background: #12241c; border-color: #2c5c46; color: #a8ecd0; }
+.wm-line { position: absolute; height: 2px; background: rgba(255,255,255,.22); transform-origin: 0 50%; transition: opacity .6s; pointer-events: none; }
+
+/* model world */
+.world { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+.world svg { background: #0b0f14; border: 1px solid var(--line); border-radius: 10px; flex: 1 1 300px; max-width: 100%; }
+.world .panel { flex: 1 1 260px; }
+.world svg .obj { cursor: pointer; }
+.world svg .obj:hover { filter: brightness(1.25); }
+select {
+  font: 14px/1.4 inherit; color: var(--ink); background: var(--panel-2);
+  border: 1px solid var(--line); border-radius: 7px; padding: 7px 10px;
+}
+
+/* consequence demo */
+.ctx-stage { text-align: center; padding: 26px 10px 8px; }
+.ctx-stage .word { font: 700 44px/1 var(--mono); letter-spacing: .04em; color: #f0f5fb; }
+.ctx-stage .scene { color: var(--ink-dim); font-size: 15px; margin-top: 14px; min-height: 48px; }
+.ctx-labels { display: flex; justify-content: space-between; font: 600 10px/1.4 var(--mono); color: var(--ink-faint); letter-spacing: .05em; text-transform: uppercase; margin-top: 4px; }
+
+/* proof demo */
+.proof { font: 14.5px/1.9 var(--mono); background: #0b0f14; border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; margin-top: 12px; }
+.proof .ln { display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; }
+.proof .why { color: var(--ink-faint); font-size: 12.5px; }
+
+/* recap svg */
+.recap svg { width: 100%; height: auto; }
+
+footer { padding: 44px 0 0; color: var(--ink-faint); font-size: 13.5px; }
+footer a { color: var(--ink-dim); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="eyebrow">Interactive essay · SOMA explainer series</div>
+  <h1>Syntax → Semantics: a spectrum, not a wall</h1>
+  <p class="sub">Philosophy inherited a dichotomy: <em>syntax</em> is the shuffling of marks, <em>semantics</em> is what the marks mean, and never the twain shall meet. This page argues the dichotomy is real only at the poles — and that between them runs a measurable continuum, with working machinery at every stop.</p>
+  <div class="meta">
+    <b>Prepared</b> 2026-08-11 · <b>Format</b> seven stations, each with a demo you can poke<br>
+    <b>Method</b> one measuring stick, applied uniformly: <em>how much can you scramble the symbols before the thing breaks?</em>
+  </div>
+  <p class="toc" style="margin-top:26px;">
+    <a href="#stick">The measuring stick</a> · <a href="#rail">The spectrum</a> · <a href="#s0">Pure form</a> · <a href="#s1">Grammar</a> · <a href="#s2">Types</a> · <a href="#s3">Proof</a> · <a href="#s4">Distribution</a> · <a href="#s5">Reference</a> · <a href="#s6">Consequence</a> · <a href="#llm">Where LLMs sit</a> · <a href="#recap">Takeaway</a>
+  </p>
+</header>
+
+<!-- ==================================================================== -->
+<section id="dichotomy">
+  <h2><span class="num">00</span> The dichotomy we inherited</h2>
+  <p class="lede">The classical picture, from logic textbooks and from Searle's Chinese Room: syntax is form, semantics is meaning, and no amount of the first adds up to the second.</p>
+  <p>On the classical picture the two are different <em>kinds</em> of thing. A computer allegedly has only syntax: it moves uninterpreted tokens according to rules that mention nothing but the tokens' shapes. Meaning — reference, truth, aboutness — is supposed to live somewhere else entirely, and Searle's famous claim was that you cannot cross over: <strong>"syntax is not sufficient for semantics."</strong> A wall, not a slope.</p>
+  <p>The wall picture explains some real facts. A parser accepts <em>"Colorless green ideas sleep furiously"</em>; a photocopier reproduces a love letter without being moved by it. But it fails to explain others: why do type checkers catch <em>meaning</em> errors while inspecting only form? Why does a sound proof system deliver <em>truths</em> by shuffling glyphs? Why does predicting the next token, the most syntactic task imaginable, yield systems you can argue with about the content of what they say?</p>
+  <p>Those cases all live <em>between</em> the poles. To place them, we need a ruler.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="stick">
+  <h2><span class="num">01</span> The measuring stick: the scramble test</h2>
+  <p class="lede">Take any symbolic process. Systematically rename its symbols — swap every <code>P</code> for <code>▲</code>, every "dog" for "blicket" — and ask: <strong>does the process still do its job?</strong> The more renamings it survives, the more purely syntactic it is. The fewer it survives, the more its correctness depends on what the symbols are hooked to.</p>
+  <p>This gives us one axis instead of two boxes. Call it <strong>interpretation-sensitivity</strong>. At the far left, <em>any</em> consistent renaming is harmless: the process never looked past the shapes. At the far right, nothing can be swapped, because the "symbol" is welded to a particular thing in the world — a signature, a name on a deed, a launch code.</p>
+
+  <div class="demo" id="scrambleDemo">
+    <p class="demo-title">Demo · scramble two things, watch what breaks</p>
+    <div class="row">
+      <button class="btn" id="scrambleBtn">Scramble the symbols</button>
+      <button class="btn" id="unscrambleBtn">Restore</button>
+    </div>
+    <div class="row" style="align-items: stretch; gap: 14px;">
+      <div class="card" style="flex:1 1 280px; margin:0;">
+        <h3 style="margin-top:0;">A derivation</h3>
+        <div class="proof" id="scrProof"></div>
+        <p style="margin:12px 0 0;"><span class="badge badge-ok" id="scrProofBadge">STILL VALID</span></p>
+      </div>
+      <div class="card" style="flex:1 1 280px; margin:0;">
+        <h3 style="margin-top:0;">A sentence</h3>
+        <div class="out" id="scrSent" style="margin-top:12px; font-family:inherit; font-size:15px;"></div>
+        <p style="margin:12px 0 0;"><span class="badge badge-ok" id="scrSentBadge">MEANS SOMETHING</span></p>
+      </div>
+    </div>
+    <p class="hint">The derivation's validity survives any renaming — its correctness was never about the symbols' interpretation. The sentence's usefulness dies instantly — it was <em>only</em> about interpretation. Same test, opposite results: that difference is the axis this whole page runs on.</p>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<section id="rail">
+  <h2><span class="num">02</span> The spectrum</h2>
+  <p class="lede">Seven stations, ordered by how little scrambling they tolerate. Click a dot to read its profile, then visit each station's demo below.</p>
+
+  <div class="rail-box">
+    <div class="rail-ends"><span class="l">Syntax — pure form</span><span class="r">Semantics — pure consequence</span></div>
+    <div class="rail" id="railEl"></div>
+    <div class="rail-read" id="railRead"></div>
+  </div>
+
+  <p>Two things to notice before descending. First, each station is not a philosophical position — it is <strong>working machinery you have used today</strong> (a regex, a compiler, a database query). Second, movement rightward is always the same trick: <em>constrain the symbol-shuffling so that some property of the world or of use is preserved by construction</em>. Semantics, on this view, is not a different substance from syntax. It is syntax under increasingly expensive contracts.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="s0">
+  <h2><span class="num">03</span> Station 0 — Pure form <span class="stn stn-syn">scramble-proof</span></h2>
+  <p class="lede">Operations that mention nothing but the marks: reverse, sort, count, substitute. Correct on Shakespeare, correct on keyboard mash, for exactly the same reason.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · the string machine</p>
+    <input type="text" id="smInput" value="the map is not the territory" aria-label="text to transform">
+    <div class="row">
+      <button class="btn" data-op="reverse">Reverse</button>
+      <button class="btn" data-op="sort">Sort letters</button>
+      <button class="btn" data-op="rot13">ROT13</button>
+      <button class="btn" data-op="count">Count</button>
+      <button class="btn" id="smGibberish" style="margin-left:auto;">Feed it gibberish instead</button>
+    </div>
+    <div class="out" id="smOut">→ pick an operation</div>
+    <p class="hint">Every button works identically on the proverb and on the gibberish. Nothing here has an opinion about meaning — which is precisely why these operations are perfectly reliable. At this station, "understanding the input" would be a bug.</p>
+  </div>
+  <p>This pole is real and it is not a strawman: cryptography, checksums, and compression <em>formats</em> live here on purpose. Their guarantee — the ciphertext leaks nothing about the meaning — is a guarantee <em>because</em> the operation is interpretation-blind.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="s1">
+  <h2><span class="num">04</span> Station 1 — Well-formedness <span class="stn stn-syn">structure, no content</span></h2>
+  <p class="lede">Grammar is the first constraint on form that isn't about single marks: now marks have <em>categories</em>, and only some arrangements are legal. Structure appears; meaning still hasn't.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · a checker that only sees structure</p>
+    <div class="row">
+      <button class="btn gsel active" data-g="0">The cat sat on the mat</button>
+      <button class="btn gsel" data-g="1">Colorless green ideas sleep furiously</button>
+      <button class="btn gsel" data-g="2">Furiously sleep ideas green colorless</button>
+    </div>
+    <div class="tokchips" id="gTokens"></div>
+    <div class="row" style="margin-top:14px;">
+      <span>Grammar: <span class="badge" id="gGrammar"></span></span>
+      <span>Sense: <span class="badge" id="gSense"></span></span>
+    </div>
+    <p class="hint">Chomsky built the middle sentence in 1957 precisely to pry these two judgments apart: the parser waves it through while comprehension shrugs. The checker sees categories (Det, Adj, N, V, Adv) and their order — a richer kind of form, still only form.</p>
+  </div>
+  <p>Note what moved: at Station 0 you could scramble <em>letters</em> freely. Here you can still swap any noun for any noun ("blicket" for "ideas" parses fine), but you can no longer swap a noun for an adverb. The space of harmless substitutions shrank. That shrinkage is the whole journey, previewed.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="s2">
+  <h2><span class="num">05</span> Station 2 — Types <span class="stn stn-mid">form policing meaning</span></h2>
+  <p class="lede">A type system is syntax engineered to track a shadow of meaning. The checker never runs your program, never touches a value — yet it rejects programs that would <em>mean</em> something incoherent.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · a checker that never executes anything</p>
+    <div class="row">
+      <button class="btn tsel active" data-t="0"><code>3 + 4</code></button>
+      <button class="btn tsel" data-t="1"><code>3 + "cat"</code></button>
+      <button class="btn tsel" data-t="2"><code>len("cat") + 4</code></button>
+      <button class="btn tsel" data-t="3"><code>"3" + "cat"</code></button>
+    </div>
+    <div class="out" id="tOut"></div>
+    <p class="hint">The verdicts come from shape-matching alone: <code>+ : (Int, Int) → Int</code>, <code>len : Str → Int</code>. But the <em>reason we chose those shapes</em> is semantic — addition genuinely makes no sense on a number and a word. The rules are syntactic; the rule-<em>choice</em> smuggled meaning in. This is the spectrum's signature move.</p>
+  </div>
+  <p>Curry and Howard pushed this to its limit: under their correspondence, a type <em>is</em> a proposition and a well-typed program <em>is</em> a proof of it. Form so tightly constrained that checking form certifies content — which walks us to the next station.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="s3">
+  <h2><span class="num">06</span> Station 3 — Proof <span class="stn stn-mid">truth by shuffling</span></h2>
+  <p class="lede">A proof system is a set of purely formal moves <em>chosen so that</em> derivability tracks truth. When it works, you can be interpretation-blind locally and truth-preserving globally.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · one derivation, three skins</p>
+    <div class="row">
+      <button class="btn psel" data-p="0">Meaningful skin</button>
+      <button class="btn psel active" data-p="1">Abstract skin</button>
+      <button class="btn psel" data-p="2">Alien glyphs</button>
+    </div>
+    <div class="proof" id="pOut"></div>
+    <div class="row" style="margin-top:12px;">
+      <span>Derivation: <span class="badge badge-ok">VALID — in every skin</span></span>
+      <span id="pTruth"></span>
+    </div>
+    <p class="hint">Modus ponens doesn't care what <code>P</code> is about; that's why the validity badge never changes. But <em>soundness</em> — the theorem that these blind moves only ever produce truths — is a claim <em>about</em> the interpretation, proved once, off-stage. Every proof spends that theorem. And Gödel marked the limit of the trick: in arithmetic, truth strictly outruns any such rulebook. The bridge from form to truth is real, load-rated, and provably not infinite.</p>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<section id="s4">
+  <h2><span class="num">07</span> Station 4 — Distribution <span class="stn stn-mid">meaning from company kept</span></h2>
+  <p class="lede">"You shall know a word by the company it keeps" (Firth, 1957). Counting which forms co-occur with which is a syntactic act. Do it at scale and the resulting geometry starts behaving like meaning.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · the same 16 words, two geometries</p>
+    <div class="row">
+      <button class="btn wsel active" data-w="spell">Arrange by spelling</button>
+      <button class="btn wsel" data-w="mean">Arrange by company kept</button>
+    </div>
+    <div class="wmap" id="wmap"></div>
+    <p class="hint" id="wmapHint">By spelling, <em>cat</em> sits with <em>cot</em> and <em>coat</em> — pure form, and semantically useless. Switch views: the layout is <em>still built from form alone</em> (co-occurrence counts), yet cats find kittens, royalty clusters, and Paris→France runs parallel to London→England. Structure in the world has leaked into statistics of the text, and the statistics give it back.</p>
+  </div>
+  <p>This station is philosophically the strangest one, so it deserves the careful statement: distributional structure is not meaning, but it is a <strong>lossy compression of the circumstances under which people meant things</strong>. The map is drawn only from tracks in the snow — yet the tracks were made by real animals, and the map inherits their shape.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="s5">
+  <h2><span class="num">08</span> Station 5 — Reference <span class="stn stn-sem">symbols aimed at a world</span></h2>
+  <p class="lede">Model theory makes the semantic pole precise: an <em>interpretation function</em> maps each symbol to something in a world, and a sentence's meaning is the condition under which it's true there. Meaning stops being an aura and becomes a mapping you can edit.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · a tiny world and an editable interpretation</p>
+    <p style="font: 15px/1.5 var(--mono); color:#cfe0f5; margin-bottom:4px;">∃x ( Circle(x) ∧ Red(x) )&nbsp;&nbsp;<span style="color:var(--ink-faint); font-size:12.5px;">"some circle is red"</span></p>
+    <div class="world">
+      <svg viewBox="0 0 320 190" id="worldSvg" aria-label="a world of four shapes; click a shape to repaint it"></svg>
+      <div class="panel">
+        <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);">Interpretation of "Red"</div>
+        <select id="redMeans" aria-label="what the predicate Red denotes">
+          <option value="red">the red things (as intended)</option>
+          <option value="blue">the blue things (deviant)</option>
+        </select>
+        <div style="margin-top:16px;">Truth in this world: <span class="badge" id="worldVerdict"></span></div>
+        <p class="hint" style="margin-top:14px;">Click any shape to repaint it — the truth value tracks the <em>world</em>. Then flip the dropdown: same string, same world, opposite verdict. Meaning lives in neither the marks nor the things, but in the <strong>mapping between them</strong> — and whoever holds the mapping holds the meaning.</p>
+      </div>
+    </div>
+  </div>
+  <p>Notice the scramble test collapse almost to zero here: rename <code>Circle</code> to <code>Blorp</code> <em>and update the mapping</em>, nothing breaks — but scramble the mapping itself and truth flips. What the symbol is has become irrelevant; what it's <em>hooked to</em> is everything.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="s6">
+  <h2><span class="num">09</span> Station 6 — Consequence <span class="stn stn-sem">no substitutions survive</span></h2>
+  <p class="lede">The far pole isn't reference but <em>use</em>: Austin's performatives, Wittgenstein's meaning-as-use. Out here a symbol doesn't describe the world; it changes it, sometimes irreversibly. Nothing can be swapped, because the token is welded to a particular occasion.</p>
+
+  <div class="demo">
+    <p class="demo-title">Demo · one word, sliding into the world</p>
+    <div class="ctx-stage">
+      <div class="word">“YES.”</div>
+      <div class="scene" id="ctxScene"></div>
+    </div>
+    <input type="range" id="ctxRange" min="0" max="3" step="1" value="0" aria-label="context severity">
+    <div class="ctx-labels"><span>typed into a scratch file</span><span>spoken where it binds</span></div>
+    <div style="margin-top:14px;">
+      <div class="rr-k" style="font:600 11px/1.9 var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint);">How much of the world now depends on this token</div>
+      <div class="meter"><i id="ctxMeter" style="width:4%"></i></div>
+    </div>
+    <p class="hint">The marks never change. What changes is how much of reality is coupled to them. At the last stop the scramble test fails <em>completely</em> — substitute any other word, or the same word from an unauthorized mouth, and the event simply doesn't happen. That total substitution-failure is what "pure semantics" means on this page's ruler.</p>
+  </div>
+</section>
+
+<!-- ==================================================================== -->
+<section id="llm">
+  <h2><span class="num">10</span> So where do LLMs sit?</h2>
+  <p class="lede">The Chinese Room argument assumes the wall: rule-following in, no meaning out, ever. The spectrum reframes the question from <em>whether</em> the room understands to <em>where on the axis</em> its machinery reaches.</p>
+  <p>Read a language model against the stations and it is not at any single one of them:</p>
+  <ul>
+    <li><strong>Trained at Station 4.</strong> The objective — predict the next token — is distributional through and through. Everything the model knows arrived as statistics of form.</li>
+    <li><strong>Behaves like Stations 1–3.</strong> It parses, it type-checks in effect, it executes chains of inference whose local moves look like proof steps. These capacities were not programmed; they precipitated out of compression, which is itself evidence that those stations are reachable from the left.</li>
+    <li><strong>Reaches Station 5 only through us — or through tools.</strong> Its symbols refer the way a map's do: via users who hold the mapping. Give it retrieval, code execution, sensors, actuators, and the mapping starts being held partly by the system itself — reference under construction, not reference forbidden.</li>
+    <li><strong>Touches Station 6 exactly where we wire it in.</strong> An LLM that can merge a pull request or send an email has tokens with consequences. That is not a metaphor; it is a deployment decision, and it is why AI safety is largely the discipline of deciding <em>which</em> of a system's symbols are allowed to reach the right edge of this page.</li>
+  </ul>
+  <p>Searle's intuition survives in weakened form: no station's machinery <em>is</em> the next station's for free; each rightward step is a real engineering (or evolutionary) achievement — a new contract that must actually be paid for. What does not survive is the wall. The room's rulebook was imagined at Station 0. Nobody's rulebook is at Station 0 anymore.</p>
+</section>
+
+<!-- ==================================================================== -->
+<section id="recap" class="recap">
+  <h2><span class="num">11</span> The takeaway</h2>
+  <p class="lede">One picture: substitution-freedom falls as you move right, and each station is a mechanism that spends some freedom to buy some meaning.</p>
+
+  <svg viewBox="0 0 860 300" role="img" aria-label="curve of substitution freedom falling across the seven stations">
+    <defs>
+      <linearGradient id="polegrad" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0" stop-color="#6ea8fe"/><stop offset="1" stop-color="#e08a5f"/>
+      </linearGradient>
+    </defs>
+    <line x1="60" y1="250" x2="820" y2="250" stroke="#262f3b" stroke-width="2"/>
+    <line x1="60" y1="250" x2="60" y2="40" stroke="#262f3b" stroke-width="2"/>
+    <text x="24" y="150" fill="#6b7889" font-size="11" font-family="ui-monospace,Menlo,monospace" transform="rotate(-90 24 150)" text-anchor="middle">SUBSTITUTION FREEDOM</text>
+    <path d="M 70 55 C 220 60, 300 80, 420 130 S 700 235, 810 244" fill="none" stroke="url(#polegrad)" stroke-width="3.5"/>
+    <g font-size="10.5" font-family="ui-monospace,Menlo,monospace" fill="#93a1b3" text-anchor="middle">
+      <g><circle cx="70" cy="55" r="4" fill="#6ea8fe"/><text x="70" y="272">0 form</text></g>
+      <g><circle cx="195" cy="63" r="4" fill="#7da4f0"/><text x="195" y="272">1 grammar</text></g>
+      <g><circle cx="320" cy="86" r="4" fill="#96a0d8"/><text x="320" y="272">2 types</text></g>
+      <g><circle cx="445" cy="142" r="4" fill="#b09a6e"/><text x="445" y="272">3 proof</text></g>
+      <g><circle cx="570" cy="196" r="4" fill="#c79468"/><text x="570" y="272">4 distribution</text></g>
+      <g><circle cx="695" cy="230" r="4" fill="#d68f63"/><text x="695" y="272">5 reference</text></g>
+      <g><circle cx="810" cy="244" r="4" fill="#e08a5f"/><text x="810" y="272">6 consequence</text></g>
+    </g>
+    <text x="440" y="30" fill="#dde5ef" font-size="13" text-anchor="middle" font-family="-apple-system,Segoe UI,sans-serif">every step right: a contract that constrains shuffling in exchange for a grip on the world</text>
+  </svg>
+
+  <p style="margin-top:18px;">Three sentences to keep:</p>
+  <ol>
+    <li><strong>Syntax and semantics are the endpoints of one axis</strong> — measured by how much symbol-scrambling a process survives — not two substances.</li>
+    <li><strong>Every working bridge between them is a contract</strong>: grammar, types, soundness theorems, co-occurrence statistics, interpretation functions, and authorized performative contexts are all ways of paying form-freedom for world-grip.</li>
+    <li><strong>"Does it really understand?" is a wall question.</strong> The spectrum question — <em>which contracts does this system actually hold, and who is paying for them?</em> — has answers you can check.</li>
+  </ol>
+</section>
+
+<footer>
+  <p>Written 2026-08-11 by the SOMA dev team (Claude, with Mike Wolf) in the explainer-series format. The demos are deliberately tiny — each one is the smallest machine that makes its station's point. Disagreements welcome via the feedback tab.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------------- spectrum rail ---------------- */
+var STATIONS = [
+  { id:'s0', name:'0 · Pure form', short:'form',
+    sees:'Individual marks and their positions. Nothing else exists.',
+    swap:'Everything — any consistent renaming of any symbol.',
+    breaks:'Nothing. That is the definition of this pole.',
+    ex:'reverse, ROT13, checksum, compression container' },
+  { id:'s1', name:'1 · Well-formedness', short:'grammar',
+    sees:'Categories of marks (noun, verb…) and legal arrangements.',
+    swap:'Any word for any word of the same category.',
+    breaks:'Cross-category swaps: put an adverb where a noun goes and legality dies.',
+    ex:'parsers, regex validators, XML well-formedness' },
+  { id:'s2', name:'2 · Types', short:'types',
+    sees:'Shapes of expressions and rules for combining shapes.',
+    swap:'Any value for any value of the same type; any well-typed subterm for another.',
+    breaks:'Ill-typed combinations — which were chosen to coincide with meaningless ones.',
+    ex:'compilers, schemas, units-of-measure checks' },
+  { id:'s3', name:'3 · Proof', short:'proof',
+    sees:'Formulas and inference rules licensed by a soundness theorem.',
+    swap:'Uniform renaming of all non-logical symbols (validity survives).',
+    breaks:'Touching the logical constants, or spending soundness you never proved.',
+    ex:'natural deduction, SQL query planners, theorem provers' },
+  { id:'s4', name:'4 · Distribution', short:'distribution',
+    sees:'Which forms co-occur with which, across an enormous corpus.',
+    swap:'Words for their distributional neighbours — approximately, lossily.',
+    breaks:'Swaps that violate the company kept: "the cat barked" costs probability.',
+    ex:'embeddings, LLM pretraining, search ranking' },
+  { id:'s5', name:'5 · Reference', short:'reference',
+    sees:'An interpretation function from symbols to objects in a world.',
+    swap:'Symbol names, IF you update the mapping in lockstep.',
+    breaks:'Any change to the mapping itself — truth values flip immediately.',
+    ex:'model theory, databases as models, sensor grounding' },
+  { id:'s6', name:'6 · Consequence', short:'consequence',
+    sees:'Tokens welded to occasions: who may utter what, where, with what force.',
+    swap:'Nothing. Not the word, not the speaker, not the occasion.',
+    breaks:'Everything. An unauthorized "I do" is noise; an authorized one is a marriage.',
+    ex:'signatures, launch codes, performatives, deployed agent actions' }
+];
+
+var railEl = document.getElementById('railEl');
+var railRead = document.getElementById('railRead');
+var current = 0;
+
+STATIONS.forEach(function (s, i) {
+  var d = document.createElement('div');
+  d.className = 'rail-dot';
+  d.style.left = (3 + i * (94 / 6)) + '%';
+  d.innerHTML = '<span class="lbl">' + s.short + '</span>';
+  d.setAttribute('role', 'button');
+  d.setAttribute('tabindex', '0');
+  d.setAttribute('aria-label', s.name);
+  d.addEventListener('click', function () { setStation(i); });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setStation(i); } });
+  railEl.appendChild(d);
+});
+var track = document.createElement('div');
+track.className = 'rail-track';
+railEl.insertBefore(track, railEl.firstChild);
+
+function setStation(i) {
+  current = i;
+  var dots = railEl.querySelectorAll('.rail-dot');
+  dots.forEach(function (d, j) { d.classList.toggle('active', j === i); });
+  var s = STATIONS[i];
+  railRead.innerHTML =
+    '<h4>' + s.name + '</h4>' +
+    '<div class="rr-row"><div class="rr-k">the rules see</div><div class="rr-v">' + s.sees + '</div>' +
+    '<div class="rr-k">swap freely</div><div class="rr-v">' + s.swap + '</div>' +
+    '<div class="rr-k">what breaks</div><div class="rr-v">' + s.breaks + '</div>' +
+    '<div class="rr-k">machinery</div><div class="rr-v">' + s.ex + '</div></div>' +
+    '<a class="jump" href="#' + s.id + '">Visit this station ↓</a>';
+}
+setStation(0);
+
+/* ---------------- 01 scramble demo ---------------- */
+var scrMap = { 'rains':'glorks', 'streets':'fribbles', 'wet':'zumid', 'It':'Zib', 'it':'zib', 'the':'the' };
+var scrambled = false;
+var proofLines = [
+  ['1.', 'If it rains, the streets get wet', 'premise'],
+  ['2.', 'It rains', 'premise'],
+  ['3.', 'The streets get wet', 'from 1, 2 (modus ponens)']
+];
+var sentPlain = 'If it rains, the streets get wet — so bring an umbrella.';
+var sentScr   = 'If zib glorks, the fribbles get zumid — so bring a quonzle.';
+
+function renderScramble() {
+  var pl = proofLines.map(function (l) {
+    var txt = l[1];
+    if (scrambled) {
+      txt = txt.replace(/rains/g, 'glorks').replace(/streets/g, 'fribbles').replace(/wet/g, 'zumid')
+               .replace(/It /g, 'Zib ').replace(/it /g, 'zib ');
+    }
+    return '<div class="ln"><span>' + l[0] + '</span><span>' + txt + '</span><span class="why">' + l[2] + '</span></div>';
+  }).join('');
+  document.getElementById('scrProof').innerHTML = pl;
+  document.getElementById('scrSent').textContent = scrambled ? sentScr : sentPlain;
+  var sb = document.getElementById('scrSentBadge');
+  if (scrambled) { sb.className = 'badge badge-bad'; sb.textContent = 'MEANING GONE'; }
+  else { sb.className = 'badge badge-ok'; sb.textContent = 'MEANS SOMETHING'; }
+}
+document.getElementById('scrambleBtn').addEventListener('click', function () { scrambled = true; renderScramble(); });
+document.getElementById('unscrambleBtn').addEventListener('click', function () { scrambled = false; renderScramble(); });
+renderScramble();
+
+/* ---------------- 03 string machine ---------------- */
+var smInput = document.getElementById('smInput');
+var smOut = document.getElementById('smOut');
+document.querySelectorAll('#s0 .btn[data-op]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var t = smInput.value;
+    var op = b.getAttribute('data-op');
+    var r = '';
+    if (op === 'reverse') r = t.split('').reverse().join('');
+    else if (op === 'sort') r = t.replace(/\s/g, '').split('').sort().join('');
+    else if (op === 'rot13') r = t.replace(/[a-zA-Z]/g, function (c) {
+      var base = c <= 'Z' ? 65 : 97;
+      return String.fromCharCode((c.charCodeAt(0) - base + 13) % 26 + base);
+    });
+    else if (op === 'count') r = t.length + ' chars · ' + (t.trim() ? t.trim().split(/\s+/).length : 0) + ' tokens';
+    smOut.textContent = '→ ' + r;
+  });
+});
+document.getElementById('smGibberish').addEventListener('click', function () {
+  var glyphs = 'qwxzjkvbfg';
+  var s = '';
+  for (var i = 0; i < 28; i++) s += (i > 0 && i % 6 === 0) ? ' ' : glyphs[Math.floor(Math.random() * glyphs.length)];
+  smInput.value = s;
+  smOut.textContent = '→ now press the same buttons — they neither notice nor care';
+});
+
+/* ---------------- 04 grammar demo ---------------- */
+var GRAM = [
+  { toks: [['The','Det'],['cat','N'],['sat','V'],['on','P'],['the','Det'],['mat','N']], g: true, s: 'ok' },
+  { toks: [['Colorless','Adj'],['green','Adj'],['ideas','N'],['sleep','V'],['furiously','Adv']], g: true, s: 'empty' },
+  { toks: [['Furiously','Adv'],['sleep','V'],['ideas','N'],['green','Adj'],['colorless','Adj']], g: false, s: 'n/a' }
+];
+function renderGram(i) {
+  var d = GRAM[i];
+  document.getElementById('gTokens').innerHTML = d.toks.map(function (t) {
+    return '<div class="tok"><b>' + t[0] + '</b><span>' + t[1] + '</span></div>';
+  }).join('');
+  var gg = document.getElementById('gGrammar');
+  gg.className = 'badge ' + (d.g ? 'badge-ok' : 'badge-bad');
+  gg.textContent = d.g ? 'WELL-FORMED' : 'REJECTED';
+  var gs = document.getElementById('gSense');
+  if (d.s === 'ok') { gs.className = 'badge badge-ok'; gs.textContent = 'MAKES SENSE'; }
+  else if (d.s === 'empty') { gs.className = 'badge badge-bad'; gs.textContent = 'MEANS NOTHING'; }
+  else { gs.className = 'badge badge-na'; gs.textContent = 'NOT REACHED'; }
+}
+document.querySelectorAll('.gsel').forEach(function (b, i) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.gsel').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    renderGram(i);
+  });
+});
+renderGram(0);
+
+/* ---------------- 05 types demo ---------------- */
+var TYPES = [
+  '✓ well-typed.\n3 : Int   4 : Int   (+) : (Int, Int) → Int\ntherefore  3 + 4 : Int\n(if you ran it, you would get 7 — but the checker never did)',
+  '✗ type error.\n3 : Int   "cat" : Str\n(+) wants (Int, Int) — the shapes refuse to fit.\nRejected without ever computing anything: a meaning error caught by form.',
+  '✓ well-typed.\nlen : Str → Int, so len("cat") : Int; then Int + Int fits.\nThe checker threaded a meaning-shadow through two steps, touching zero values.',
+  '✓ well-typed (string concatenation).\n"3" + "cat" : Str → "3cat".\nLegal, and arguably still a bad idea — types track a *shadow* of meaning, not all of it.'
+];
+document.querySelectorAll('.tsel').forEach(function (b, i) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.tsel').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    document.getElementById('tOut').textContent = TYPES[i];
+  });
+});
+document.getElementById('tOut').textContent = TYPES[0];
+
+/* ---------------- 06 proof demo ---------------- */
+var SKINS = [
+  { lines: [['1.','If it rains, the streets get wet','premise'],['2.','It rains','premise'],['3.','The streets get wet','1, 2 — modus ponens']],
+    truth: '<span>World: <span class="badge badge-ok">CONCLUSION TRUE (given true premises)</span></span>' },
+  { lines: [['1.','P → Q','premise'],['2.','P','premise'],['3.','Q','1, 2 — modus ponens']],
+    truth: '<span>World: <span class="badge badge-na">NOT IN PLAY — no interpretation attached</span></span>' },
+  { lines: [['1.','◬ ⟿ ⟟','premise'],['2.','◬','premise'],['3.','⟟','1, 2 — modus ponens']],
+    truth: '<span>World: <span class="badge badge-na">NOT IN PLAY — and validity does not miss it</span></span>' }
+];
+function renderProof(i) {
+  document.getElementById('pOut').innerHTML = SKINS[i].lines.map(function (l) {
+    return '<div class="ln"><span>' + l[0] + '</span><span>' + l[1] + '</span><span class="why">' + l[2] + '</span></div>';
+  }).join('');
+  document.getElementById('pTruth').innerHTML = SKINS[i].truth;
+}
+document.querySelectorAll('.psel').forEach(function (b, i) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.psel').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    renderProof(i);
+  });
+});
+renderProof(1);
+
+/* ---------------- 07 word map ---------------- */
+var WORDS = [
+  // name, group(meaning), spell-position %, meaning-position %
+  ['cat',    1, [14,22], [16,26]],
+  ['cot',    2, [22,34], [78,80]],
+  ['coat',   3, [30,22], [62,84]],
+  ['goat',   4, [38,34], [30,52]],
+  ['kitten', 1, [72,20], [10,40]],
+  ['dog',    1, [58,78], [30,22]],
+  ['puppy',  1, [80,66], [24,36]],
+  ['pet',    1, [66,32], [20,14]],
+  ['king',   2, [76,44], [58,20]],
+  ['queen',  2, [12,62], [70,26]],
+  ['crown',  2, [26,74], [64,36]],
+  ['throne', 2, [46,64], [74,40]],
+  ['Paris',  3, [14,86], [52,66]],
+  ['France', 3, [34,50], [66,74]],
+  ['London', 3, [50,14], [42,58]],
+  ['England',3, [88,84], [56,66]]
+];
+var wmap = document.getElementById('wmap');
+var wEls = WORDS.map(function (w) {
+  var el = document.createElement('div');
+  el.className = 'wm-word';
+  el.textContent = w[0];
+  wmap.appendChild(el);
+  return el;
+});
+// analogy lines for meaning view: Paris→France, London→England
+var lineDefs = [[12, 13], [14, 15]];
+var wLines = lineDefs.map(function () {
+  var el = document.createElement('div');
+  el.className = 'wm-line';
+  el.style.opacity = '0';
+  wmap.appendChild(el);
+  return el;
+});
+function layoutWords(mode) {
+  var pi = mode === 'spell' ? 2 : 3;
+  WORDS.forEach(function (w, i) {
+    var el = wEls[i];
+    el.style.left = w[pi][0] + '%';
+    el.style.top = w[pi][1] + '%';
+    el.className = 'wm-word' + (mode === 'mean' ? ' g' + w[1] : '');
+  });
+  var W = wmap.clientWidth, H = wmap.clientHeight;
+  lineDefs.forEach(function (ld, i) {
+    var a = WORDS[ld[0]][3], b = WORDS[ld[1]][3];
+    var x1 = a[0] / 100 * W, y1 = a[1] / 100 * H, x2 = b[0] / 100 * W, y2 = b[1] / 100 * H;
+    var len = Math.hypot(x2 - x1, y2 - y1);
+    var ang = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+    var el = wLines[i];
+    el.style.left = x1 + 'px'; el.style.top = y1 + 'px';
+    el.style.width = len + 'px'; el.style.transform = 'rotate(' + ang + 'deg)';
+    el.style.opacity = mode === 'mean' ? '1' : '0';
+    el.style.transitionDelay = mode === 'mean' ? '1.1s' : '0s';
+  });
+}
+document.querySelectorAll('.wsel').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.wsel').forEach(function (x) { x.classList.remove('active'); });
+    b.classList.add('active');
+    layoutWords(b.getAttribute('data-w'));
+  });
+});
+layoutWords('spell');
+window.addEventListener('resize', function () {
+  var active = document.querySelector('.wsel.active');
+  layoutWords(active ? active.getAttribute('data-w') : 'spell');
+});
+
+/* ---------------- 08 model world ---------------- */
+var worldObjs = [
+  { shape: 'circle', color: 'red',  x: 60,  y: 60 },
+  { shape: 'circle', color: 'red',  x: 160, y: 60 },
+  { shape: 'square', color: 'blue', x: 250, y: 45 },
+  { shape: 'square', color: 'red',  x: 110, y: 135 }
+];
+var COLORS = { red: '#e0685f', blue: '#5f8fe0' };
+var worldSvg = document.getElementById('worldSvg');
+function renderWorld() {
+  worldSvg.innerHTML = worldObjs.map(function (o, i) {
+    var fill = COLORS[o.color];
+    if (o.shape === 'circle') {
+      return '<circle class="obj" data-i="' + i + '" cx="' + o.x + '" cy="' + o.y + '" r="26" fill="' + fill + '"><title>click to repaint</title></circle>';
+    }
+    return '<rect class="obj" data-i="' + i + '" x="' + (o.x - 24) + '" y="' + (o.y - 24) + '" width="48" height="48" rx="6" fill="' + fill + '"><title>click to repaint</title></rect>';
+  }).join('');
+  worldSvg.querySelectorAll('.obj').forEach(function (el) {
+    el.addEventListener('click', function () {
+      var o = worldObjs[+el.getAttribute('data-i')];
+      o.color = o.color === 'red' ? 'blue' : 'red';
+      renderWorld();
+    });
+  });
+  var denotes = document.getElementById('redMeans').value;   // what "Red" picks out
+  var truth = worldObjs.some(function (o) { return o.shape === 'circle' && o.color === denotes; });
+  var v = document.getElementById('worldVerdict');
+  v.className = 'badge ' + (truth ? 'badge-ok' : 'badge-bad');
+  v.textContent = truth ? 'TRUE' : 'FALSE';
+}
+document.getElementById('redMeans').addEventListener('change', renderWorld);
+renderWorld();
+
+/* ---------------- 09 consequence ---------------- */
+var CTX = [
+  { scene: 'Typed into a scratch file nobody will read. Pure inscription — delete it and the universe is unchanged.', w: 4 },
+  { scene: 'Answer on a quiz: “Is 91 divisible by 7?” Now it can be right or wrong — the token has acquired truth conditions.', w: 30 },
+  { scene: 'Spoken at a wedding, to “Do you take this person…”. The word doesn’t report a marriage; it performs one. Austin’s discovery: some utterances are acts.', w: 70 },
+  { scene: 'Spoken in a launch facility, by the officer holding the key, to “Confirm launch?”. Fully welded to one occasion, one speaker, one irreversible consequence. No substitution survives.', w: 100 }
+];
+var ctxRange = document.getElementById('ctxRange');
+function renderCtx() {
+  var c = CTX[+ctxRange.value];
+  document.getElementById('ctxScene').textContent = c.scene;
+  document.getElementById('ctxMeter').style.width = c.w + '%';
+}
+ctxRange.addEventListener('input', renderCtx);
+renderCtx();
+
+})();
+</script>
+
+<script src="/vendor/soma-feedback/soma-feedback.js"
+        data-site="syntax-semantics-spectrum"
+        data-endpoint="/.netlify/functions/feedback"
+        data-label="Feedback"
+        data-area="explainer"
+        data-no-google
+        defer></script>
+</body>
+</html>
