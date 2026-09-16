@@ -29,6 +29,17 @@
  * SOMA/standards/SOMA-AFFORDANCE-INTRO-ONCE.md for the documented pattern so
  * the next affordance copies this instead of hand-rolling it (as Quinn's
  * admin-changelog.html did for Legends).
+ * v4.2 — 2026-09-16: the tab can be dragged anywhere, and each site remembers
+ * where it was put, per browser (Mike: "letting the feedback chip be draggable
+ * as a SOMA standard and remember location per instance"; per site, per
+ * browser, ruled the same day). Found because the tab sat exactly on Live
+ * Edit's "Edit copy" button. A tap still opens the panel: a drag only starts
+ * after 5px of movement. Arrow keys move the focused tab (Shift for bigger
+ * steps) and Home puts it back in the default corner. The panel and the toast
+ * open toward the middle of the screen from wherever the tab is. Position is
+ * kept as offsets from the nearest corner, so a resize keeps the tab where it
+ * was and clamps it back into view. Also carries the opt-in fresh-build
+ * checker (SOMA 4f63b3c), which shipped without a version line.
  *
  * A single embeddable, framework-free feedback widget: a bottom-left tab
  * opens a compact panel where a participant can say what should change.
@@ -41,15 +52,20 @@
  *   <link rel="stylesheet" href="/vendor/soma-feedback/soma-feedback.css">
  *   <script src="/vendor/soma-feedback/soma-feedback.js"
  *           data-site="my-site-name"
- *           data-endpoint="/.netlify/functions/feedback"
+ *           data-endpoint="https://vpsmikewolf.duckdns.org/feedback-svc/feedback"
  *           defer></script>
  *
  * Config via data-* attributes on the script tag:
- *   data-endpoint          optional; defaults to a same-origin proxy function.
+ *   data-endpoint          optional; defaults to the SOMA VPS feedback svc.
  *   data-site              optional; short app/site identifier.
  *   data-label             optional; tab label, default "Feedback".
  *   data-area              optional; coarse origin label.
  *   data-google-client-id  optional; Google Identity Services client ID.
+ *
+ * Optional fresh-build checking: declare <meta name="soma-build" content="SHA">
+ * and serve /version.json as {"build":"SHA"}. Sites with drafts/saves expose
+ * window.SOMA_HAS_UNSAVED = function () { return dirty || saving; }.
+ * See SOMA-STD-fresh-build.md for the complete opt-in contract.
  *
  * Optional page-level global:
  *   window.somaFeedbackIdentity — function returning { name, email } or a
@@ -61,13 +77,8 @@
 
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
 
-  var DEFAULT_ENDPOINT = '/.netlify/functions/feedback';
-  // Vendored for soma-explainer: the upstream default Google client ID has been
-  // removed. This page runs with data-no-google, so the constant was dead weight,
-  // and an unlisted infrastructure briefing should not publish identifiers it
-  // does not need. Pass data-google-client-id explicitly if admin detection is
-  // ever wanted here.
-  var DEFAULT_GOOGLE_CLIENT_ID = '';
+  var DEFAULT_ENDPOINT = 'https://vpsmikewolf.duckdns.org/feedback-svc/feedback';
+  var DEFAULT_GOOGLE_CLIENT_ID = '1072944905499-vm2v2i5dvn0a0d2o4ca36i1vge8cvbn0.apps.googleusercontent.com';
 
   // After a successful submission, the panel shows "Accepted ✓" for this long
   // before re-arming itself for a second item (long enough to register as a
@@ -371,8 +382,283 @@
     }, 6000);
   }
 
+  // ── Draggable, remembered position (v4.2) ──────────────────────────────
+  // Stored per site in this browser, as offsets from the nearest corner:
+  // {ax:'left'|'right', ox, ay:'top'|'bottom', oy}. No saved position means the
+  // CSS default corner, untouched, so a chip nobody moved looks exactly as before.
+  var POSITION_KEY = 'position:' + ((script && script.getAttribute('data-site')) || window.location.host || 'site');
+  var DRAG_THRESHOLD_PX = 5;
+  var EDGE_MARGIN_PX = 8;
+  var ignoreNextClick = false;   // the click a browser fires at the end of a drag
+  var drag = null;
+  tab.setAttribute('title', 'Drag to move. Arrow keys move it; Home puts it back.');
+  tab.setAttribute('aria-keyshortcuts', 'ArrowUp ArrowDown ArrowLeft ArrowRight Home');
+
+  function viewport() {
+    return { w: document.documentElement.clientWidth || window.innerWidth, h: window.innerHeight };
+  }
+  function readPosition() {
+    try {
+      var p = JSON.parse(loadRemembered(POSITION_KEY) || 'null');
+      var ok = p && (p.ax === 'left' || p.ax === 'right') && (p.ay === 'top' || p.ay === 'bottom')
+        && isFinite(p.ox) && isFinite(p.oy);
+      return ok ? p : null;
+    } catch (_) { return null; }
+  }
+  // Top-left corner (x, y) of a w×h tab -> a corner-anchored position, clamped
+  // so the whole tab stays on screen.
+  function positionFromBox(x, y, w, h) {
+    var v = viewport();
+    x = Math.round(Math.min(Math.max(x, EDGE_MARGIN_PX), Math.max(EDGE_MARGIN_PX, v.w - w - EDGE_MARGIN_PX)));
+    y = Math.round(Math.min(Math.max(y, EDGE_MARGIN_PX), Math.max(EDGE_MARGIN_PX, v.h - h - EDGE_MARGIN_PX)));
+    var ax = (x + w / 2) < v.w / 2 ? 'left' : 'right';
+    var ay = (y + h / 2) < v.h / 2 ? 'top' : 'bottom';
+    return {
+      ax: ax, ox: Math.round(ax === 'left' ? x : v.w - x - w),
+      ay: ay, oy: Math.round(ay === 'top' ? y : v.h - y - h),
+    };
+  }
+  function setPositionStyles(p) {
+    var s = mount.style;
+    if (!p) {
+      s.left = s.right = s.top = s.bottom = '';
+      mount.classList.remove('soma-feedback-root--moved');
+      return;
+    }
+    s.left = p.ax === 'left' ? p.ox + 'px' : 'auto';
+    s.right = p.ax === 'right' ? p.ox + 'px' : 'auto';
+    s.top = p.ay === 'top' ? p.oy + 'px' : 'auto';
+    s.bottom = p.ay === 'bottom' ? p.oy + 'px' : 'auto';
+    mount.classList.add('soma-feedback-root--moved');
+  }
+  // The panel and the toast open toward the middle of the screen, and the
+  // panel is shifted sideways and height-capped so it never leaves the screen.
+  function placePanel() {
+    var moved = mount.classList.contains('soma-feedback-root--moved');
+    var r = tab.getBoundingClientRect();
+    var v = viewport();
+    var alignRight = moved && (r.left + r.width / 2) > v.w / 2;
+    var openDown = moved && (r.top + r.height / 2) < v.h / 2;
+    mount.classList.toggle('soma-feedback-root--align-right', alignRight);
+    mount.classList.toggle('soma-feedback-root--open-down', openDown);
+    if (!moved) {
+      panel.style.left = panel.style.right = panel.style.maxHeight = '';
+      return;
+    }
+    var room = openDown ? v.h - r.bottom - 8 - EDGE_MARGIN_PX : r.top - 8 - EDGE_MARGIN_PX;
+    panel.style.maxHeight = Math.max(160, room) + 'px';
+    if (panel.hidden) return;
+    var pw = panel.offsetWidth;
+    if (alignRight) {
+      panel.style.left = 'auto';
+      panel.style.right = Math.min(0, r.right - pw - EDGE_MARGIN_PX) + 'px';
+    } else {
+      panel.style.right = 'auto';
+      panel.style.left = Math.min(0, v.w - EDGE_MARGIN_PX - (r.left + pw)) + 'px';
+    }
+  }
+  // Re-apply the saved position, clamped to the current viewport (not saved:
+  // a narrow window must not overwrite where the tab lives on a wide one).
+  function applyPosition() {
+    var p = readPosition();
+    setPositionStyles(p);
+    if (p) {
+      var r = tab.getBoundingClientRect();
+      setPositionStyles(positionFromBox(r.left, r.top, r.width, r.height));
+    }
+    placePanel();
+  }
+  function savePosition(p) {
+    remember(POSITION_KEY, JSON.stringify(p));
+    setPositionStyles(p);
+    placePanel();
+  }
+  function resetPosition() {
+    try { window.localStorage.removeItem('soma-feedback:' + POSITION_KEY); } catch (_) { /* non-fatal */ }
+    setPositionStyles(null);
+    placePanel();
+  }
+
+  tab.addEventListener('pointerdown', function (e) {
+    ignoreNextClick = false;
+    if (e.button !== 0) return;
+    var r = tab.getBoundingClientRect();
+    drag = { id: e.pointerId, sx: e.clientX, sy: e.clientY, dx: e.clientX - r.left, dy: e.clientY - r.top, w: r.width, h: r.height, moved: false };
+    // Capture now, not when the drag starts: a fast pointer is already off the
+    // 44px tab by its first move event, and those events would go to the page.
+    // A tap still ends in a click on the tab.
+    try { tab.setPointerCapture(e.pointerId); } catch (_) { /* no capture: moves are seen while over the tab */ }
+  });
+  tab.addEventListener('pointermove', function (e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (!drag.moved) {
+      if (Math.abs(e.clientX - drag.sx) < DRAG_THRESHOLD_PX && Math.abs(e.clientY - drag.sy) < DRAG_THRESHOLD_PX) return;
+      drag.moved = true;
+      mount.classList.add('soma-feedback-root--dragging');
+    }
+    e.preventDefault();
+    setPositionStyles(positionFromBox(e.clientX - drag.dx, e.clientY - drag.dy, drag.w, drag.h));
+    placePanel();
+  });
+  function endDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    if (drag.moved) {
+      mount.classList.remove('soma-feedback-root--dragging');
+      var r = tab.getBoundingClientRect();
+      savePosition(positionFromBox(r.left, r.top, r.width, r.height));
+      ignoreNextClick = true;
+    }
+    drag = null;
+  }
+  tab.addEventListener('pointerup', endDrag);
+  tab.addEventListener('pointercancel', endDrag);
+  // The click that follows a drag is not a tap. Capture phase, so it runs
+  // before the open/close handler registered below.
+  tab.addEventListener('click', function (e) {
+    // Only that one click. A new press or keypress clears it, so a browser that
+    // fires no click after a captured drag cannot eat the next real tap.
+    if (ignoreNextClick) { ignoreNextClick = false; e.stopImmediatePropagation(); e.preventDefault(); }
+  }, true);
+  tab.addEventListener('keydown', function (e) {
+    ignoreNextClick = false;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var step = e.shiftKey ? 64 : 16;
+    var r = tab.getBoundingClientRect();
+    var x = r.left;
+    var y = r.top;
+    if (e.key === 'ArrowLeft') x -= step;
+    else if (e.key === 'ArrowRight') x += step;
+    else if (e.key === 'ArrowUp') y -= step;
+    else if (e.key === 'ArrowDown') y += step;
+    else if (e.key === 'Home') { e.preventDefault(); resetPosition(); return; }
+    else return;
+    e.preventDefault();
+    savePosition(positionFromBox(x, y, r.width, r.height));
+  });
+  var resizeFrame = 0;
+  window.addEventListener('resize', function () {
+    if (resizeFrame) return;
+    resizeFrame = window.requestAnimationFrame(function () { resizeFrame = 0; applyPosition(); });
+  });
+
+  // Fresh build: opt-in, copy-once, zero dependencies. Mike Wolf + Codex,
+  // 2026-09-11. See SOMA-STD-fresh-build.md for the host contract.
+  function startFreshBuild() {
+    var meta = document.querySelector('meta[name="soma-build"]');
+    var loaded = meta && meta.content.trim();
+    if (!loaded || typeof window.fetch !== 'function') return;
+    var pending = '';
+    var active = false;
+    var fetching = false;
+    var humanOnly = false;
+    var attempted = false;
+    var lastActivity = Date.now();
+    var banner;
+    var storageKey = 'soma-feedback:fresh-build:guard';
+
+    function unsaved() {
+      try {
+        return (typeof window.SOMA_HAS_UNSAVED === 'function' && window.SOMA_HAS_UNSAVED()) ||
+          requestInFlight || reviewInFlight || textarea.value.trim() ||
+          reviewTextarea.value.trim() || clarifyReply.value.trim() || pendingQuestion;
+      } catch (_) { return true; }
+    }
+    function showBanner() {
+      if (banner) return;
+      var button = el('button', { type: 'button', text: 'Reload' });
+      banner = el('div', { class: 'soma-feedback-fresh-build', role: 'status' }, [
+        document.createTextNode('A newer version is ready — '), button,
+      ]);
+      button.addEventListener('click', function () {
+        // This generic widget cannot flush a site's saves. Keep drafts intact.
+        if (unsaved()) {
+          button.textContent = 'Save your work, then Reload';
+          return;
+        }
+        window.location.reload();
+      });
+      document.body.appendChild(banner);
+    }
+    function reserveReload() {
+      try {
+        var raw = window.sessionStorage.getItem(storageKey);
+        var guard = raw ? JSON.parse(raw) : { builds: [], times: [] };
+        if (!guard || !Array.isArray(guard.builds) || !Array.isArray(guard.times) ||
+            !guard.builds.every(function (b) { return typeof b === 'string'; }) ||
+            !guard.times.every(function (t) { return typeof t === 'number' && isFinite(t); })) return false;
+        var now = Date.now();
+        guard.times = guard.times.filter(function (t) { return now - t < 600000; });
+        // Latch the loaded build, so stale HTML cannot loop even if deployments change.
+        if (guard.builds.indexOf(loaded) !== -1 || guard.times.length >= 2) return false;
+        guard.builds.push(loaded);
+        guard.times.push(now);
+        var encoded = JSON.stringify(guard);
+        window.sessionStorage.setItem(storageKey, encoded);
+        return window.sessionStorage.getItem(storageKey) === encoded;
+      } catch (_) { return false; } // Fail closed when durability is unavailable.
+    }
+    function reconsider() {
+      if (!pending || attempted) return;
+      if (unsaved()) humanOnly = true;
+      if (humanOnly) { showBanner(); return; }
+      var focused = document.activeElement;
+      while (focused && focused.shadowRoot && focused.shadowRoot.activeElement) {
+        focused = focused.shadowRoot.activeElement;
+      }
+      var editing = focused && (focused.isContentEditable ||
+        /^(INPUT|TEXTAREA|SELECT)$/.test(focused.tagName));
+      var dialog = Array.prototype.some.call(
+        document.querySelectorAll('dialog[open], [role="dialog"], [role="alertdialog"]'),
+        function (node) { return !node.hidden && window.getComputedStyle(node).visibility !== 'hidden' && node.getClientRects().length > 0; }
+      );
+      if (document.visibilityState !== 'visible' || editing || dialog ||
+          !panel.hidden || Date.now() - lastActivity < 30000) { showBanner(); return; }
+      if (!reserveReload()) { humanOnly = true; showBanner(); return; }
+      attempted = true;
+      window.location.reload();
+    }
+    function check() {
+      if (fetching || attempted) return;
+      fetching = true;
+      Promise.resolve().then(function () {
+        return window.fetch('/version.json', { cache: 'no-store' });
+      }).then(function (response) {
+        if (!response.ok) throw new Error('unavailable');
+        return response.json();
+      }).then(function (data) {
+        if (!data || typeof data.build !== 'string' || !data.build.trim()) return;
+        if (!active) {
+          active = true;
+          window.setInterval(check, 300000);
+          window.setInterval(reconsider, 1000);
+          document.addEventListener('visibilitychange', function () {
+            if (document.visibilityState === 'visible') check();
+          });
+        }
+        pending = data.build.trim() !== loaded ? data.build.trim() : '';
+        if (!pending && banner) { banner.remove(); banner = null; }
+        reconsider();
+      }).catch(function () { /* Missing file, SPA HTML, offline: silent. */ })
+        .then(function () {
+          fetching = false;
+          if (!active) activityEvents.forEach(function (event) {
+            document.removeEventListener(event, recordActivity, true);
+          });
+        });
+    }
+    // Observe activity during the initial probe too; never infer idle from fetch time.
+    function recordActivity() { lastActivity = Date.now(); }
+    var activityEvents = ['keydown', 'input', 'pointerdown', 'pointermove', 'touchstart', 'scroll', 'focusin'];
+    activityEvents.forEach(function (event) {
+      document.addEventListener(event, recordActivity, { capture: true, passive: true });
+    });
+    check(); // No polling or visibility retries until this probe validates the contract.
+  }
+
   function ready() {
     document.body.appendChild(mount);
+    applyPosition();
+    startFreshBuild();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', ready);
@@ -649,6 +935,7 @@
     if (mode !== 'review') mode = 'request';
     renderMode();
     panel.hidden = false;
+    placePanel();   // v4.2: open toward the middle of the screen from wherever the tab is
     tab.setAttribute('aria-expanded', 'true');
     clearTabResult();
     var area = currentArea();
@@ -816,7 +1103,9 @@
   }
 
   /**
-   * v4 — "we filed it as X; one tap if it was really Y."
+   * Lane correction (v4): "we filed it as X; one tap if it was really Y."
+   * (Not written as "v4 —": soma-chip-check.py reads the last line of that
+   * shape as the chip's version, and this one made every build read as v4.)
    *
    * Only rendered when the server says the lane was INFERRED. If a human already
    * told us (i.e. this IS the correction), we do not ask again — being asked to

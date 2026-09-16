@@ -431,3 +431,54 @@
   cursor: default;
   text-decoration: none;
 }
+
+/* Opt-in fresh-build notice; separate from the feedback composer. */
+.soma-feedback-fresh-build {
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  z-index: 10000;
+  max-width: calc(100vw - 48px);
+  padding: 8px 12px;
+  border: 1px solid #64748b;
+  border-radius: 8px;
+  background: #1f2430;
+  color: #f5f5f5;
+  font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+.soma-feedback-fresh-build button {
+  min-height: 44px;
+  padding: 4px 8px;
+  border: 0;
+  background: transparent;
+  color: #b8d5ff;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.soma-feedback-fresh-build button:focus-visible {
+  outline: 2px solid #b8d5ff;
+  outline-offset: 2px;
+}
+
+/* ── v4.2 draggable tab (2026-09-16) ─────────────────────────────────────────
+   The tab can be dragged anywhere; each site remembers where, per browser.
+   Unmoved, none of the classes below are set and the chip looks exactly as it
+   did. Moved, the panel and the toast open toward the middle of the screen:
+   --align-right when the tab is in the right half, --open-down when it is in
+   the top half. JS also shifts and height-caps the panel to keep it on screen. */
+.soma-feedback-tab { touch-action: none; }
+.soma-feedback-root--dragging .soma-feedback-tab {
+  cursor: grabbing;
+  transform: none;
+  transition: none;
+}
+.soma-feedback-root--align-right .soma-feedback-panel { left: auto; right: 0; }
+.soma-feedback-root--open-down .soma-feedback-panel { bottom: auto; top: 52px; }
+.soma-feedback-root--align-right .soma-feedback-toast { left: auto; right: calc(100% + 12px); }
+.soma-feedback-root--open-down .soma-feedback-toast { bottom: auto; top: 0; }
+@media (max-width: 640px) {
+  .soma-feedback-root--align-right .soma-feedback-toast { left: auto; right: 0; }
+  .soma-feedback-root--open-down .soma-feedback-toast { bottom: auto; top: 52px; }
+}
